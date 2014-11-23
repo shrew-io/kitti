@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var clean = require('gulp-clean');
 var less = require('gulp-less');
 var flatten = require('gulp-flatten');
+var install = require('gulp-install');
 var through2 = require('through2');
 var gutil = require('gulp-util');
 var PluginError = gutil.PluginError;
@@ -10,8 +11,15 @@ var WebkitBuilder = require('node-webkit-builder');
 gulp.task('clean', ['clean-dist', 'clean-build']);
 gulp.task('prepare', ['clean', 'html', 'assets', 'js', 'less', 'manifest']);
 gulp.task('run', ['prepare', 'development-exec']);
-gulp.task('build', ['prepare', 'build-webkit']);
+gulp.task('build', ['prepare', 'prepare-webkit', 'build-webkit']);
 gulp.task('default', ['build']);
+
+gulp.task('prepare-webkit', ['prepare'], function () {
+	return gulp.src('dist/package.json')
+		.pipe(install({
+			production: true
+		}));
+});
 
 gulp.task('clean-build', function () {
 	return gulp.src('build', {
@@ -89,7 +97,7 @@ gulp.task('development-exec', ['prepare'], function () {
 	nw.run();
 });
 
-gulp.task('build-webkit', ['prepare'], function () {
+gulp.task('build-webkit', ['prepare-webkit'], function () {
 	var nw = new WebkitBuilder({
 		files: './dist/**',
 		platforms: ['win', 'osx'],

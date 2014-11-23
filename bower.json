@@ -1,0 +1,22 @@
+{
+  "name": "kitti",
+  "version": "1.0.0",
+  "authors": [
+    "Shrew.io"
+  ],
+  "main": "app/index.html",
+  "moduleType": [
+    "node"
+  ],
+  "license": "GPL",
+  "homepage": "http://shrew.io/",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/lib",
+    "test",
+    "tests"
+  ]
+}

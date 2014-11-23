@@ -3,16 +3,25 @@ var clean = require('gulp-clean');
 var less = require('gulp-less');
 var flatten = require('gulp-flatten');
 var install = require('gulp-install');
-var through2 = require('through2');
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
+var git = require('git-rev');
+var zip = require('gulp-zip');
+var q = require('q');
+var package = require('./package.json');
 var WebkitBuilder = require('node-webkit-builder');
 
-gulp.task('clean', ['clean-dist', 'clean-build']);
+var getBuildName = function getBuildName() {
+	var deferred = q.defer();
+	git.short(function (rev) {
+		deferred.resolve(package.name + '-v' + package.version + '-' + rev);
+	});
+	return deferred.promise;
+};
+
 gulp.task('prepare', ['clean', 'html', 'assets', 'js', 'less', 'manifest']);
 gulp.task('run', ['prepare', 'development-exec']);
 gulp.task('build', ['prepare', 'prepare-webkit', 'build-webkit']);
-gulp.task('default', ['build']);
+gulp.task('package', ['build', 'package-windows', 'package-osx']);
+gulp.task('default', ['build', 'package']);
 
 gulp.task('prepare-webkit', ['prepare'], function () {
 	return gulp.src('dist/package.json')
@@ -21,16 +30,7 @@ gulp.task('prepare-webkit', ['prepare'], function () {
 		}));
 });
 
-gulp.task('clean-build', function () {
-	return gulp.src('build', {
-			read: false
-		})
-		.pipe(clean({
-			force: true
-		}));
-});
-
-gulp.task('clean-dist', function () {
+gulp.task('clean', function () {
 	return gulp.src('dist', {
 			read: false
 		})
@@ -40,25 +40,7 @@ gulp.task('clean-dist', function () {
 });
 
 gulp.task('manifest', ['clean'], function () {
-	var manifest = function manifest(opts) {
-		opts = opts || {};
-
-		return through2.obj(function (file, enc, next) {
-			if (!file.isBuffer()) {
-				this.emit('error', new PluginError('gulp-webkit-manifest', e));
-			}
-
-			var package = JSON.parse(file.contents);
-			// modify package.json
-
-			file.contents = new Buffer(JSON.stringify(package));
-			this.push(file);
-			next();
-		});
-	};
-
 	return gulp.src('package.json')
-		.pipe(manifest())
 		.pipe(gulp.dest('dist'));
 });
 
@@ -92,22 +74,50 @@ gulp.task('less', ['clean'], function () {
 
 gulp.task('development-exec', ['prepare'], function () {
 	var nw = new WebkitBuilder({
-		files: './dist/**',
+		files: './dist/**'
 	});
 	nw.run();
 });
 
 gulp.task('build-webkit', ['prepare-webkit'], function () {
-	var nw = new WebkitBuilder({
-		files: './dist/**',
-		platforms: ['win', 'osx'],
-		macIcns: './assets/images/icons/application.icns',
-		winIco: './assets/images/icons/application.ico'
+	var deferred = q.defer();
+
+	getBuildName().then(function (buildName) {
+		var nw = new WebkitBuilder({
+			files: './dist/**',
+			platforms: ['win', 'osx'],
+			macIcns: './assets/images/icons/application.icns',
+			winIco: './assets/images/icons/application.ico',
+			buildType: function () {
+				return buildName;
+			}
+		});
+
+		nw.build().then(function () {
+			deferred.resolve();
+		}).catch(function (error) {
+			console.error('WebKit: %s', error);
+			deferred.reject();
+		});
 	});
 
-	nw.build().then(function () {
-		console.log('WebKit: build finished');
-	}).catch(function (error) {
-		console.error('WebKit: %s', error);
+	return deferred.promise;
+});
+
+gulp.task('package-windows', ['build'], function () {
+	getBuildName().then(function (buildName) {
+		var buildDirectory = 'build/' + buildName;
+		gulp.src(buildDirectory + '/win/**')
+			.pipe(zip(buildName + '-windows.zip'))
+			.pipe(gulp.dest('build/' + buildName));
+	});
+});
+
+gulp.task('package-osx', ['build'], function () {
+	getBuildName().then(function (buildName) {
+		var buildDirectory = 'build/' + buildName;
+		gulp.src(buildDirectory + '/osx/**')
+			.pipe(zip(buildName + '-osx.zip'))
+			.pipe(gulp.dest('build/' + buildName));
 	});
 });

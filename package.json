@@ -1,0 +1,15 @@
+{
+	"name": "kitti-build",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Shrew.io",
+	"license": "GPL",
+	"devDependencies": {
+		"gulp": "^3.8.10",
+		"node-webkit-builder": "^0.3.0"
+	}
+}

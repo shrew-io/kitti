@@ -1,10 +1,8 @@
 var gulp = require('gulp');
-var clean = require('gulp-clean');
 var less = require('gulp-less');
 var flatten = require('gulp-flatten');
 var install = require('gulp-install');
 var git = require('git-rev');
-var AdmZip = require('adm-zip');
 var appdmg = require('appdmg');
 var os = require('os');
 var q = require('q');
@@ -124,11 +122,8 @@ gulp.task('package-windows', ['build'], function () {
 	var deferred = q.defer();
 
 	getBuild().then(function (build) {
-		var zipFile = build.name + '.zip';
-		var zip = new AdmZip();
-		zip.addLocalFolder(build.path + '/win');
-		zip.writeZip(build.path + '/' + zipFile);
-		console.log('Created: %s', zipFile);
+		// TODO
+		//console.log('Created: %s', zipFile);
 	});
 
 	return deferred.promise;

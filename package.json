@@ -1,37 +1,34 @@
 {
-  "name": "kitti",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.html",
-  "author": "Shrew.io",
-  "license": "GPL",
-  "dependencies": {
-    "moment": "latest",
-    "q": "^1.1.2"
-  },
-  "scripts": {
-    "gulp": "./node_modules/.bin/gulp",
-    "start": "./node_modules/.bin/gulp run"
-  },
-  "devDependencies": {
-    "adm-zip": "^0.4.4",
-    "appdmg": "^0.2.2",
-    "fs-extra": "^0.12.0",
-    "git-rev": "^0.2.1",
-    "gulp": "^3.8.10",
-    "gulp-clean": "^0.3.1",
-    "gulp-flatten": "0.0.4",
-    "gulp-install": "^0.2.0",
-    "gulp-less": "^1.3.6",
-    "gulp-util": "^3.0.1",
-    "gulp-zip": "^2.0.2",
-    "node-webkit-builder": "^0.3.0",
-    "through2": "^0.6.3"
-  },
-  "window": {
-    "toolbar": true,
-    "width": 800,
-    "height": 600,
-    "icon": "assets/images/icons/application.ico"
-  }
+	"name": "kitti",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.html",
+	"author": "Shrew.io",
+	"license": "GPL",
+	"dependencies": {
+		"moment": "latest",
+		"q": "^1.1.2"
+	},
+	"scripts": {
+		"gulp": "./node_modules/.bin/gulp",
+		"start": "./node_modules/.bin/gulp run"
+	},
+	"devDependencies": {
+		"appdmg": "^0.2.2",
+		"fs-extra": "^0.12.0",
+		"git-rev": "^0.2.1",
+		"gulp": "^3.8.10",
+		"gulp-flatten": "0.0.4",
+		"gulp-install": "^0.2.0",
+		"gulp-less": "^1.3.6",
+		"gulp-util": "^3.0.1",
+		"node-webkit-builder": "^0.3.0",
+		"through2": "^0.6.3"
+	},
+	"window": {
+		"toolbar": true,
+		"width": 800,
+		"height": 600,
+		"icon": "assets/images/icons/application.ico"
+	}
 }

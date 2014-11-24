@@ -9,7 +9,14 @@
     "moment": "latest",
     "q": "^1.1.2"
   },
+  "scripts": {
+    "gulp": "./node_modules/.bin/gulp",
+    "start": "./node_modules/.bin/gulp run"
+  },
   "devDependencies": {
+    "adm-zip": "^0.4.4",
+    "appdmg": "^0.2.2",
+    "fs-extra": "^0.12.0",
     "git-rev": "^0.2.1",
     "gulp": "^3.8.10",
     "gulp-clean": "^0.3.1",

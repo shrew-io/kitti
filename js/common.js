@@ -1,6 +1,16 @@
 requirejs.config({
-	baseUrl: 'lib',
+	baseUrl: './lib',
 	paths: {
-		app: '../js'
+		'app': '../js',
+		'jquery': 'jquery/dist/jquery',
+		'jquery-private': '../js/vendor/jquery-private'
+	},
+	map: {
+		'*': {
+			'jquery': 'jquery-private'
+		},
+		'jquery-private': {
+			'jquery': 'jquery'
+		}
 	}
 });

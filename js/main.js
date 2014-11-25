@@ -1,3 +1,5 @@
 requirejs(['./common'], function (common) {
-	alert('Hello World!');
+	requirejs(['app/bootstrap'], function (bootstrap) {
+		// Bootstrap
+	});
 });

@@ -1,17 +1,17 @@
 {
-  "name": "kitti",
-  "version": "1.0.0",
-  "authors": [
+	"name": "kitti",
+	"version": "1.0.0",
+	"authors": [
     "Shrew.io"
   ],
-  "main": "app/index.html",
-  "moduleType": [
+	"main": "app/index.html",
+	"moduleType": [
     "node"
   ],
-  "license": "GPL",
-  "homepage": "http://shrew.io/",
-  "private": true,
-  "ignore": [
+	"license": "GPL",
+	"homepage": "http://shrew.io/",
+	"private": true,
+	"ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
@@ -19,7 +19,8 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "requirejs": "~2.1.15"
-  }
+	"dependencies": {
+		"requirejs": "~2.1.15",
+		"jquery": "~2.1.1"
+	}
 }

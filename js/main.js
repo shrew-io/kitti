@@ -1,1 +1,3 @@
-alert(require('moment').toString());
+requirejs(['./common'], function (common) {
+	alert('Hello World!');
+});

@@ -1,6 +1,5 @@
 var gulp = require('gulp');
 var less = require('gulp-less');
-var flatten = require('gulp-flatten');
 var install = require('gulp-install');
 var git = require('git-rev');
 var os = require('os');

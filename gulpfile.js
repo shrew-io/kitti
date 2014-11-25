@@ -13,16 +13,16 @@ var date = Date.now();
 var temp = 'build/temp';
 
 var getBuild = function getBuild() {
-    var deferred = q.defer();
-    git.short(function (rev) {
-        var name = package.name + '-v' + package.version + '-' + rev + '-' + date;
-        deferred.resolve({
-            appName: package.name,
-            name: name,
-            path: 'build/' + name
-        });
-    });
-    return deferred.promise;
+	var deferred = q.defer();
+	git.short(function (rev) {
+		var name = package.name + '-v' + package.version + '-' + rev + '-' + date;
+		deferred.resolve({
+			appName: package.name,
+			name: name,
+			path: 'build/' + name
+		});
+	});
+	return deferred.promise;
 };
 
 gulp.task('prepare', ['clean', 'copy', 'less']);
@@ -32,154 +32,158 @@ gulp.task('package', ['build', 'package-windows', 'package-osx']);
 gulp.task('default', ['build', 'package']);
 
 gulp.task('prepare-webkit', ['prepare'], function () {
-    return gulp.src('build/temp/package.json')
-        .pipe(install({
-            production: true
-        }));
+	return gulp.src('build/temp/package.json')
+		.pipe(install({
+			production: true
+		}));
 });
 
 gulp.task('clean', function () {
-    var deferred = q.defer();
+	var deferred = q.defer();
 
-    getBuild().then(function (build) {
-        fsx.remove('build/temp', function (err) {
-            console.log('Cleaned directories');
-            deferred.resolve();
-        });
-    });
+	getBuild().then(function (build) {
+		fsx.remove('build/temp', function (err) {
+			console.log('Cleaned directories');
+			deferred.resolve();
+		});
+	});
 
-    return deferred.promise;
+	return deferred.promise;
 });
 
 gulp.task('copy', ['clean'], function () {
-    fsx.copySync('package.json', temp + '/package.json');
-    fsx.copySync('assets', temp + '/assets');
-    fsx.copySync('js', temp + '/js');
-    fsx.copySync('lib', temp + '/lib');
-    fsx.copySync('html/', temp + '/');
+	fsx.copySync('package.json', temp + '/package.json');
+	fsx.copySync('assets', temp + '/assets');
+	fsx.copySync('js', temp + '/js');
+	fsx.copySync('lib', temp + '/lib');
+	fsx.copySync('html/', temp + '/');
 });
 
 gulp.task('less', ['clean'], function () {
-    return gulp.src('less/**/style.less')
-        .pipe(less())
-        .pipe(gulp.dest('build/temp/assets/css'));
+	return gulp.src('less/**/style.less')
+		.pipe(less())
+		.pipe(gulp.dest('build/temp/assets/css'));
 });
 
 gulp.task('development-exec', ['prepare'], function () {
-    var nw = new WebkitBuilder({
-        files: './build/temp/**'
-    });
-    nw.run();
+	package.window.toolbar = true;
+	fsx.writeJsonSync(temp + '/package.json', package);
+	var nw = new WebkitBuilder({
+		files: './build/temp/**'
+	});
+	nw.run();
 });
 
 gulp.task('build-webkit', ['prepare-webkit'], function () {
-    var deferred = q.defer();
+	var deferred = q.defer();
 
-    getBuild().then(function (build) {
-        var nw = new WebkitBuilder({
-            files: './build/temp/**',
-            platforms: ['win', 'osx'],
-            macIcns: './assets/images/icons/application.icns',
-            winIco: './assets/images/icons/application.ico',
-            buildType: function () {
-                return build.name;
-            }
-        });
+	getBuild().then(function (build) {
+		fsx.writeJsonSync(temp + '/package.json', package);
 
-        nw.build().then(function () {
-            deferred.resolve();
-        }).catch(function (error) {
-            console.error('WebKit Error: %s', error);
-            throw {
-                error: 'WebKit',
-                message: error
-            }
-        });
-    });
+		var nw = new WebkitBuilder({
+			files: './build/temp/**',
+			platforms: ['win', 'osx'],
+			macIcns: './assets/images/icons/application.icns',
+			winIco: './assets/images/icons/application.ico',
+			buildType: function () {
+				return build.name;
+			}
+		});
 
-    return deferred.promise;
+		nw.build().then(function () {
+			deferred.resolve();
+		}).catch(function (error) {
+			console.error('WebKit Error: %s', error);
+			throw {
+				error: 'WebKit',
+				message: error
+			}
+		});
+	});
+
+	return deferred.promise;
 });
 
 gulp.task('package-windows', ['build'], function () {
-    var deferred = q.defer();
+	var deferred = q.defer();
 
-    getBuild().then(function (build) {
-        // TODO
-        //console.log('Created: %s', zipFile);
-    });
+	getBuild().then(function (build) {
+		// TODO
+		//console.log('Created: %s', zipFile);
+	});
 
-    return deferred.promise;
+	return deferred.promise;
 });
 
 gulp.task('package-osx', ['build'], function () {
-    var isOsx = os.type() == 'Darwin';
-    if (!isOsx) {
-        console.log('Warning: Skipping OSX build');
-        return;
-    }
+	var isOsx = os.type() == 'Darwin';
+	if (!isOsx) {
+		console.log('Warning: Skipping OSX build');
+		return;
+	}
 
-    var deferred = q.defer();
+	var deferred = q.defer();
 
-    npm.load(package, function (err) {
-        npm.commands.install(["appdmg"], function (error, data) {
-            if (error) {
-                throw error;
-            }
+	npm.load(package, function (err) {
+		npm.commands.install(["appdmg"], function (error, data) {
+			if (error) {
+				throw error;
+			}
 
-            var appdmg = require('appdmg');
-            getBuild().then(function (build) {
-                fsx.copySync('dist/background.png', build.path + '/background.png');
-                fsx.copySync('assets/images/icons/application.icns', build.path + '/application.icns');
+			var appdmg = require('appdmg');
+			getBuild().then(function (build) {
+				fsx.copySync('dist/background.png', build.path + '/background.png');
+				fsx.copySync('assets/images/icons/application.icns', build.path + '/application.icns');
 
-                var appName = build.appName;
-                var fileName = 'osx/' + build.appName + '.app';
-                var osx = {
-                    'title': appName,
-                    'icon': 'application.icns',
-                    'background': 'background.png',
-                    'icon-size': 80,
-                    'contents': [{
-                        'x': 100,
-                        'y': 100,
-                        'type': 'link',
-                        'path': '/Applications'
+				var appName = build.appName;
+				var fileName = 'osx/' + build.appName + '.app';
+				var osx = {
+					'title': appName,
+					'icon': 'application.icns',
+					'background': 'background.png',
+					'icon-size': 80,
+					'contents': [{
+						'x': 100,
+						'y': 100,
+						'type': 'link',
+						'path': '/Applications'
             }, {
-                        'x': 250,
-                        'y': 100,
-                        'type': 'file',
-                        'path': fileName
+						'x': 250,
+						'y': 100,
+						'type': 'file',
+						'path': fileName
             }]
-                };
+				};
 
-                fsx.writeJsonSync(build.path + '/osx.json', osx);
+				fsx.writeJsonSync(build.path + '/osx.json', osx);
 
-                var dmgFile = build.name + '.dmg';
-                var dmg = appdmg(build.path + '/osx.json', build.path + '/' + dmgFile);
+				var dmgFile = build.name + '.dmg';
+				var dmg = appdmg(build.path + '/osx.json', build.path + '/' + dmgFile);
 
-                var removeTemp = function () {
-                    fsx.removeSync(build.path + '/osx.json');
-                    fsx.removeSync(build.path + '/application.icns');
-                    fsx.removeSync(build.path + '/background.png');
-                };
+				var removeTemp = function () {
+					fsx.removeSync(build.path + '/osx.json');
+					fsx.removeSync(build.path + '/application.icns');
+					fsx.removeSync(build.path + '/background.png');
+				};
 
-                dmg.on('finish', function () {
-                    console.log('Created: %s', dmgFile);
-                    removeTemp();
-                    deferred.resolve();
-                });
+				dmg.on('finish', function () {
+					console.log('Created: %s', dmgFile);
+					removeTemp();
+					deferred.resolve();
+				});
 
-                dmg.on('error', function (error) {
-                    console.error('DMG Error: %s', error);
-                    removeTemp();
-                    deferred.reject();
-                });
-            });
-        });
+				dmg.on('error', function (error) {
+					console.error('DMG Error: %s', error);
+					removeTemp();
+					deferred.reject();
+				});
+			});
+		});
 
-        npm.on("log", function (message) {
-            console.log(message);
-        });
-    });
+		npm.on("log", function (message) {
+			console.log(message);
+		});
+	});
 
-    return deferred.promise;
+	return deferred.promise;
 });

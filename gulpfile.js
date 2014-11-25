@@ -10,6 +10,7 @@ var package = require('./package.json');
 var WebkitBuilder = require('node-webkit-builder');
 var npm = require("npm");
 var date = Date.now();
+var temp = 'build/temp';
 
 var getBuild = function getBuild() {
     var deferred = q.defer();
@@ -24,7 +25,7 @@ var getBuild = function getBuild() {
     return deferred.promise;
 };
 
-gulp.task('prepare', ['clean', 'html', 'assets', 'js', 'less', 'manifest']);
+gulp.task('prepare', ['clean', 'copy', 'less']);
 gulp.task('run', ['prepare', 'development-exec']);
 gulp.task('build', ['prepare', 'prepare-webkit', 'build-webkit']);
 gulp.task('package', ['build', 'package-windows', 'package-osx']);
@@ -50,31 +51,12 @@ gulp.task('clean', function () {
     return deferred.promise;
 });
 
-gulp.task('manifest', ['clean'], function () {
-    return gulp.src('package.json')
-        .pipe(gulp.dest('build/temp'));
-});
-
-gulp.task('html', ['clean'], function () {
-    return gulp.src('html/**', {
-            base: './'
-        })
-        .pipe(flatten())
-        .pipe(gulp.dest('build/temp'));
-});
-
-gulp.task('assets', ['clean'], function () {
-    return gulp.src('assets/**', {
-            base: './'
-        })
-        .pipe(gulp.dest('build/temp'));
-});
-
-gulp.task('js', ['clean'], function () {
-    return gulp.src('js/**', {
-            base: './'
-        })
-        .pipe(gulp.dest('build/temp'));
+gulp.task('copy', ['clean'], function () {
+    fsx.copySync('package.json', temp + '/package.json');
+    fsx.copySync('assets', temp + '/assets');
+    fsx.copySync('js', temp + '/js');
+    fsx.copySync('lib', temp + '/lib');
+    fsx.copySync('html/', temp + '/');
 });
 
 gulp.task('less', ['clean'], function () {

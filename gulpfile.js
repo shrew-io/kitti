@@ -1,22 +1,22 @@
 var gulp = require('gulp');
 var less = require('gulp-less');
 var install = require('gulp-install');
+var WebkitBuilder = require('node-webkit-builder');
 var git = require('git-rev');
+var fsx = require('fs-extra');
+var npm = require("npm");
 var os = require('os');
 var q = require('q');
-var fsx = require('fs-extra');
-var package = require('./package.json');
-var WebkitBuilder = require('node-webkit-builder');
-var npm = require("npm");
 var date = Date.now();
 var temp = 'build/temp';
+var manifest = require('./package.json');
 
 var getBuild = function getBuild() {
     var deferred = q.defer();
     git.short(function (rev) {
-        var name = package.name + '-v' + package.version + '-' + rev + '-' + date;
+        var name = manifest.name + '-v' + manifest.version + '.' + rev;
         deferred.resolve({
-            appName: package.name,
+            appName: manifest.name,
             name: name,
             path: 'build/' + name
         });
@@ -24,61 +24,67 @@ var getBuild = function getBuild() {
     return deferred.promise;
 };
 
-gulp.task('prepare', ['clean', 'copy', 'less']);
-gulp.task('run', ['prepare', 'development-exec']);
-gulp.task('build', ['prepare', 'prepare-webkit', 'build-webkit']);
+/* Chained tasks
+ ****************** */
+
+gulp.task('run', ['prepare-run', 'webkit-run']);
+gulp.task('build', ['prepare-build', 'webkit-build']);
 gulp.task('package', ['build', 'package-windows', 'package-osx']);
 gulp.task('default', ['build', 'package']);
 
-gulp.task('prepare-webkit', ['prepare'], function () {
-    return gulp.src('build/temp/package.json')
+
+/* Prepare
+ ****************** */
+
+gulp.task('copy', function () {
+    console.log(manifest);
+
+    fsx.removeSync(temp);
+    fsx.copySync('./src', temp + '/');
+    fsx.removeSync(temp + '/less');
+});
+
+gulp.task('prepare-run', ['copy', 'less', 'dependencies'], function () {
+    manifest.window.toolbar = true;
+    fsx.writeJsonSync(temp + '/package.json', manifest);
+});
+
+gulp.task('prepare-build', ['copy', 'less', 'dependencies'], function () {
+    fsx.writeJsonSync(temp + '/package.json', manifest);
+});
+
+gulp.task('dependencies', ['copy'], function () {
+    return gulp.src(['bower.json', 'package.json'])
+        .pipe(gulp.dest(temp))
         .pipe(install({
             production: true
         }));
 });
 
-gulp.task('clean', function () {
-    var deferred = q.defer();
-
-    getBuild().then(function (build) {
-        fsx.remove('build/temp', function (err) {
-            console.log('Cleaned directories');
-            deferred.resolve();
-        });
-    });
-
-    return deferred.promise;
-});
-
-gulp.task('copy', ['clean'], function () {
-    fsx.copySync('package.json', temp + '/package.json');
-    fsx.copySync('src', temp + '/');
-    fsx.removeSync(temp + '/less');
-});
-
-gulp.task('less', ['clean'], function () {
-    return gulp.src('less/**/style.less')
+gulp.task('less', ['copy'], function () {
+    return gulp.src('src/less/**/style.less')
         .pipe(less())
-        .pipe(gulp.dest('build/temp/assets/css'));
+        .pipe(gulp.dest(temp + '/assets/css'));
 });
 
-gulp.task('development-exec', ['prepare'], function () {
-    package.window.toolbar = true;
-    fsx.writeJsonSync(temp + '/package.json', package);
+/* Execute / Build
+ ****************** */
+
+gulp.task('webkit-run', ['prepare-run'], function () {
     var nw = new WebkitBuilder({
-        files: './build/temp/**'
+        files: temp + '/**'
     });
     nw.run();
 });
 
-gulp.task('build-webkit', ['prepare-webkit'], function () {
+gulp.task('webkit-build', ['prepare-build'], function () {
     var deferred = q.defer();
 
     getBuild().then(function (build) {
-        fsx.writeJsonSync(temp + '/package.json', package);
+        fsx.removeSync(build.path);
 
         var nw = new WebkitBuilder({
-            files: './build/temp/**',
+            files: temp + '/**',
             platforms: ['win', 'osx'],
             macIcns: './src/assets/images/icons/application.icns',
             winIco: './src/assets/images/icons/application.ico',
@@ -101,6 +107,9 @@ gulp.task('build-webkit', ['prepare-webkit'], function () {
     return deferred.promise;
 });
 
+/* Packaging
+ ****************** */
+
 gulp.task('package-windows', ['build'], function () {
     var deferred = q.defer();
 
@@ -121,7 +130,7 @@ gulp.task('package-osx', ['build'], function () {
 
     var deferred = q.defer();
 
-    npm.load(package, function (err) {
+    npm.load(manifest, function (err) {
         npm.commands.install(["appdmg"], function (error, data) {
             if (error) {
                 throw error;

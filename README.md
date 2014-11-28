@@ -1,7 +1,7 @@
 Kitti
 ======
 an application seed for bootstrapping HTML5 desktop apps.
-It's powered by node-webkit + AngularJS including cool build management.
+It's powered by node-webkit + AngularJS including fancy build management for Windows & OS X.
 
 ## Usage
 ```$ git clone https://github.com/shrew-io/kitti.git```

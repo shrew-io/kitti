@@ -1,5 +1,5 @@
-var windows = require('./js/init/windows');
-var osx = require('./js/init/osx');
+var windows = require('./init/windows');
+var osx = require('./init/osx');
 var type = require('os').type();
 var nw = window.require('nw.gui');
 

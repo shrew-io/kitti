@@ -25,7 +25,7 @@ Note: You don't need to install bower dependencies
 * Gulp
 * Q
 
-## License 
+## License
 * see [LICENSE](https://github.com/shrew-io/kitti/blob/master/LICENSE.md) file
 
 ## Version 

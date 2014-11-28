@@ -4,11 +4,11 @@ an application seed for bootstrapping HTML5 desktop apps.
 It's powered by node-webkit + AngularJS including fancy build management for Windows & OS X.
 
 ## Usage
-Clone the repository  
+#### Clone the repository  
 ```$ git clone https://github.com/shrew-io/kitti.git```
 
 #### Initialize development environment
-You don't need to install bower dependencies
+Note: You don't need to install bower dependencies  
 ```$ npm install```
 
 #### Start application in development mode  

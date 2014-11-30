@@ -2,10 +2,12 @@ var gulp = require('gulp');
 var install = require('gulp-install');
 var WebkitBuilder = require('node-webkit-builder');
 var git = require('git-rev');
+var fs = require('fs');
 var fsx = require('fs-extra');
 var npm = require("npm");
 var os = require('os');
 var q = require('q');
+var chokidar = require('chokidar');
 var recess = require('recess');
 var manifest = require('./package.json');
 var temp = 'build/temp';
@@ -16,7 +18,6 @@ var temp = 'build/temp';
 var copy = function copy() {
 	var deferred = q.defer();
 
-	fsx.removeSync(temp);
 	fsx.copySync('./src', temp + '/');
 	fsx.removeSync(temp + '/less');
 
@@ -60,6 +61,7 @@ gulp.task('default', ['build', 'package']);
  ****************** */
 
 gulp.task('copy', function () {
+	fsx.removeSync(temp);
 	return copy();
 });
 
@@ -80,11 +82,28 @@ gulp.task('dependencies', ['copy'], function () {
 		}));
 });
 
+/* Watch
+ ****************** */
+
+gulp.task('watch', ['run'], function () {
+	chokidar.watch('./src', {
+		ignored: /[\/\\]\./,
+		persistent: true
+	}).on('change', function (path) {
+		console.log(path + ' has changed - reloading');
+		copy().then(function () {
+			console.log('Copied files');
+		});
+	});
+});
+
 /* Execute / Build
  ****************** */
 
 gulp.task('webkit-run', ['prepare-run'], function () {
-	var deferred = q.defer();
+	fsx.copySync('./node_modules/chokidar', temp + '/node_modules/');
+	fsx.copySync('./reload.js', temp + '/reload.js');
+	fs.appendFile(temp + '/index.html', '<script src="reload.js"></script>');
 
 	var nw = new WebkitBuilder({
 		files: temp + '/**'

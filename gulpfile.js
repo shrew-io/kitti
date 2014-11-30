@@ -67,6 +67,10 @@ gulp.task('copy', function () {
 
 gulp.task('prepare-run', ['copy', 'dependencies'], function () {
 	manifest.window.toolbar = true;
+	/*manifest.app = {
+		debug: true
+	};*/
+
 	fsx.writeJsonSync(temp + '/package.json', manifest);
 });
 

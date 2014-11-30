@@ -28,7 +28,7 @@ var copy = function copy() {
 			throw err;
 		}
 
-		fsx.outputFileSync(temp + '/assets/css/style.css', obj.data);
+		fsx.outputFileSync(temp + '/assets/css/style.css', obj[0].output[0]);
 		deferred.resolve();
 	});
 

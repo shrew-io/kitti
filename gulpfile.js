@@ -38,7 +38,7 @@ var copy = function copy() {
 var getBuild = function getBuild() {
 	var deferred = q.defer();
 	git.short(function (rev) {
-		var name = manifest.name + '-v' + manifest.version + '.' + rev;
+		var name = manifest.name + '-v' + manifest.version + '-' + rev;
 		deferred.resolve({
 			appName: manifest.name,
 			name: name,
@@ -184,7 +184,7 @@ gulp.task('package-osx', ['build'], function () {
 				var fileName = 'osx/' + build.appName + '.app';
 				var osx = {
 					'title': appName,
-					'icon': 'assets/images/icons/application.icns',
+					'icon': '../temp/assets/images/icons/application.icns',
 					'background': 'background.png',
 					'icon-size': 80,
 					'contents': [{

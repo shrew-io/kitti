@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"fs-extra": "^0.12.0",
+		"nedb": "^0.11.1",
 		"q": "^1.1.2"
 	},
 	"devDependencies": {
@@ -27,8 +28,8 @@
 	},
 	"window": {
 		"toolbar": false,
-		"width": 1024,
-		"height": 768,
+		"width": 800,
+		"height": 500,
 		"icon": "assets/images/icons/application.ico"
 	},
 	"app": {
